@@ -1,6 +1,6 @@
 #pragma once
-#include <v8.h>
 #include <nan.h>
+#include <v8.h>
 
 struct FontDescriptor
 {
@@ -78,7 +78,7 @@ public:
     {
         Nan::EscapableHandleScope scope;
         v8::Local<v8::Array> res = Nan::New<v8::Array>(results->size());
-        for (std::vector<FontDescriptor *>::iterator it = results->begin(); it != results->end(); ++it)
+        for (auto it = results->begin(); it != results->end(); ++it)
         {
             Nan::Set(res, it - results->begin(), (*it)->to_js_object());
         }
@@ -98,7 +98,7 @@ private:
         {
             return nullptr;
         }
-        char *copy = new char[strlen(s) + 1];
+        auto *copy = new char[strlen(s) + 1];
         strcpy(&copy[0], s);
         return copy;
     }
@@ -119,7 +119,7 @@ private:
             return nullptr;
         }
 
-        std::string str(*utf8_str);
+        const std::string str(*utf8_str);
         return copy_string(str.c_str());
     }
 };

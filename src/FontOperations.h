@@ -1,5 +1,4 @@
 #pragma once
-#define WINVER 0x600;
 #include <dwrite.h>
 #include "FontDescriptor.h"
 

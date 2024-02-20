@@ -34,6 +34,7 @@
 # Editors
 .vs/
 .vscode/
+CppProperties.json
 
 # Node.js and Node-gyp
 build/

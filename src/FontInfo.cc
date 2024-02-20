@@ -1,6 +1,5 @@
 #include <nan.h>
 #include <node.h>
-#include <stdlib.h>
 #include <uv.h>
 #include <v8.h>
 
@@ -10,14 +9,14 @@
 
 void get_available_fonts(uv_work_t *work)
 {
-    AsyncRequest *request = (AsyncRequest *) work->data;
+    AsyncRequest *request = static_cast<AsyncRequest*>(work->data);
     request->result = FontOperations::get_available_fonts();
 }
 
-template<bool async>
+template<bool Async>
 NAN_METHOD(get_available_fonts)
 {
-    if(async)
+    if(Async)
     {
         if(info.Length() < 1 || !info[0]->IsFunction())
         {

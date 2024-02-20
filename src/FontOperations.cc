@@ -1,6 +1,6 @@
-#include <unordered_set>
+#define WINVER 0x600;
 #include <string>
-#include <stdlib.h>
+#include <unordered_set>
 
 #include "StringUtils.h"
 #include "FontOperations.h"
@@ -53,7 +53,6 @@ FontDescriptor *FontOperations::from(IDWriteFont *font)
         const void *r_key;
         unsigned int r_key_sz;
 
-        wchar_t *name;
 
         files[0].GetLoader(&loader);
 
@@ -63,11 +62,11 @@ FontDescriptor *FontOperations::from(IDWriteFont *font)
             files[0].GetReferenceKey(&r_key, &r_key_sz);
             local_loader->GetFilePathLengthFromKey(r_key, r_key_sz, &name_sz);
 
-            name = new wchar_t[name_sz];
+            auto *name = new wchar_t[name_sz];
             local_loader->GetFilePathFromKey(r_key, r_key_sz, name, name_sz + 1);
 
-            char *family = get_string(font, DWRITE_INFORMATIONAL_STRING_WIN32_FAMILY_NAMES);
-            char *style = get_string(font, DWRITE_INFORMATIONAL_STRING_WIN32_SUBFAMILY_NAMES);
+            const char *family = get_string(font, DWRITE_INFORMATIONAL_STRING_WIN32_FAMILY_NAMES);
+            const char *style = get_string(font, DWRITE_INFORMATIONAL_STRING_WIN32_SUBFAMILY_NAMES);
 
             if(family && style)
             {
@@ -95,7 +94,7 @@ FontDescriptor *FontOperations::from(IDWriteFont *font)
 std::vector<FontDescriptor*> *FontOperations::get_available_fonts()
 {
 
-    std::vector<FontDescriptor *> *result = new std::vector<FontDescriptor*>();
+    auto *result = new std::vector<FontDescriptor*>();
     std::unordered_set<std::string> unq_fonts;
 
     IDWriteFactory *factory = nullptr;
@@ -108,21 +107,20 @@ std::vector<FontDescriptor*> *FontOperations::get_available_fonts()
     IDWriteFontCollection *collection = nullptr;
     factory->GetSystemFontCollection(&collection);
 
-    int n_families = collection->GetFontFamilyCount();
-
-    for(int i = 0; i < n_families; i++) 
+    const unsigned int n_families = collection->GetFontFamilyCount();
+    for(unsigned int i = 0; i < n_families; i++) 
     {
         IDWriteFontFamily *family;
         collection->GetFontFamily(i, &family);
 
-        int n_fonts = family->GetFontCount();
-        for(int j = 0; j < n_fonts; j++) 
+        const unsigned int n_fonts = family->GetFontCount();
+        for(unsigned int j = 0; j < n_fonts; j++) 
         {
             IDWriteFont *font = nullptr;
             family->GetFont(j, &font);
 
             FontDescriptor *font_descriptor = from(font);
-            if(font_descriptor && !unq_fonts.contains(font_descriptor->get_path()))
+            if(font_descriptor && !unq_fonts.count(font_descriptor->get_path()) == 0)
             {
                 unq_fonts.insert(font_descriptor->get_path());
                 result->push_back(font_descriptor);
