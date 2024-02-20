@@ -4,36 +4,38 @@
 #include <uv.h>
 #include <v8.h>
 
+#include "AsyncRequest.h"
 #include "FontDescriptor.h"
+#include "FontOperations.h"
 
-
-v8::Local<v8::Array> collect(std::vector<FontDescriptor*> *results)
+void get_available_fonts(uv_work_t *work)
 {
-    Nan::EscapableHandleScope scope;
-    v8::Local<v8::Array> res = Nan::New<v8::Array>(results->size());
+    AsyncRequest *request = (AsyncRequest *) work->data;
+    request->result = FontOperations::get_available_fonts();
+}
 
-    for (std::vector<FontDescriptor*>::iterator it = results->begin(); it != results->end(); ++it)
+template<bool async>
+NAN_METHOD(get_available_fonts)
+{
+    if(async)
     {
-        Nan::Set(res, it - results->begin(), (*it)->toJsObject());
+        if(info.Length() < 1 || !info[0]->IsFunction())
+        {
+            return Nan::ThrowTypeError("First argument must be a callback function");
+        }
+
+        AsyncRequest *request = new AsyncRequest(info[0].As<v8::Function>(), "font-info:getAvailableFonts");
+        uv_queue_work(uv_default_loop(), &request->work, get_available_fonts, (uv_after_work_cb)req->execute);
+        return;
     }
 
-    delete results;
-    results = nullptr;
-
-    return scope.Escape(res);
+    info.GetReturnValue().Set(FontDescriptor::collect(FontOperations::get_available_fonts()));
 }
 
-v8::Local<v8::Value> wrapFont(FontDescriptor *result)
+NAN_MODULE_INIT(Init)
 {
-	Nan::EscapableHandleScope scope;
-
-	if(result == nullptr)
-	{
-		return scope.Escape(Nan::Null());
-	}
-
-	v8::Local<v8::Object> res = result->toJsObject();
-	delete result;
-	result = nullptr;
-	return scope.Escape(res);
+    Nan::Export(target, "getAvailableFonts", get_available_fonts<true>);
+    Nan::Export(target, "getAvailableFontsSync", get_available_fonts<false>);
 }
+
+NODE_MODULE(fontinfo, Init);

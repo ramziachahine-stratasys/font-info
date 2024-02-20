@@ -4,24 +4,35 @@
 #include <v8.h>
 #include <vector>
 
-#include "FontDescriptor.h"
-
 struct AsyncRequest {
+    uv_work_t work;
+    std::vector<FontDescriptor *> *result;
+    Nan::Callback *callback;
+    const char *name;
 
-public:
-    AsyncRequest(v8::Local<v8::Value> v) {
+    AsyncRequest( v8::Local<v8::Function> callback, const char *name = "font-info:async-callback") {
         work.data = (void *)this;
-        callback = new Nan::Callback(v.As<v8::Function>());
+        this->name = name ;
+        this->callback = new Nan::Callback(callback);
         result = nullptr;
     }
 
     ~AsyncRequest() {
         delete callback;
-        callback = nullptr;
+        delete []name;
     }
 
-private:
-    uv_work_t work;
-    std::vector<FontDescriptor*> *result;
-    Nan::Callback *callback;
+    void execute() {
+        Nan::HandleScope scope;
+        Nan::AsyncResource async(name);
+        v8::Local<v8::Value> info[1];
+
+        if (result) {
+            info[0] = FontDescriptor::collect(result);
+        } else {
+            info[0] = Nan::Null();
+        }
+
+        this->callback->Call(1, info, &async);
+    }
 };
