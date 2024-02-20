@@ -1,0 +1,24 @@
+{
+  "name": "font-info",
+  "version": "0.0.1",
+  "description": "A native addon to provide access to font catalog on Windows Machines.",
+  "main": "build/Release/font-info",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "node-gyp rebuild"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ramziachahine-stratasys/font-info.git"
+  },
+  "author": "Ramzi Chahine <Ramzi.Chahine@stratasys.com>",
+  "license": "MIT",
+  "gypfile": true,
+  "bugs": {
+    "url": "https://github.com/ramziachahine-stratasys/font-info/issues"
+  },
+  "homepage": "https://github.com/ramziachahine-stratasys/font-info#readme",
+  "dependencies": {
+    "nan": "^2.18.0"
+  }
+}

@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# Editors
+.vs/
+.vscode/
+
+# Node.js and Node-gyp
+build/
+node_modules/
